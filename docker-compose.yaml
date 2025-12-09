@@ -1,0 +1,46 @@
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_PASSWORD: secret
+      POSTGRES_USER: itinno
+      POSTGRES_DB: itinnodb
+    volumes:
+      - ./volumes/db/data:/var/lib/postgresql/data
+    networks:
+      - intern
+
+  app:
+    image: ghcr.io/hs-esslingen-it-innovationseditor-v2-0/itinno-backend:develop
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/itinno
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=secret
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.$APP_NAME.entrypoints=websecure"
+      - "traefik.http.routers.$APP_NAME.rule=Host($APP_URL)"
+      - "traefik.http.routers.$APP_NAME.tls.certresolver=letsencrypt"
+      - "traefik.http.services.$APP_NAME.loadbalancer.server.port=8080"
+    networks:
+      - traefik
+      - intern
+
+  adminer:
+    image: adminer
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.$APP_NAME_ADMINER.entrypoints=websecure"
+      - "traefik.http.routers.$APP_NAME_ADMINER.rule=Host($APP_URL_ADMINER)"
+      - "traefik.http.routers.$APP_NAME_ADMINER.tls.certresolver=letsencrypt"
+      - "traefik.http.services.$APP_NAME_ADMINER.loadbalancer.server.port=8080"
+    networks:
+      - traefik
+      - intern
+
+networks:
+  traefik:
+    external: true
+  intern:
+    external: false
