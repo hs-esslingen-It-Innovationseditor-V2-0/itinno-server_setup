@@ -10,7 +10,8 @@ services:
     networks:
       - intern
 
-  app:
+  backend:
+    container_name: "innoeditor-backend"
     image: ghcr.io/hs-esslingen-it-innovationseditor-v2-0/itinno-backend:develop
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/itinno
@@ -20,32 +21,32 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.$APP_NAME.entrypoints=websecure"
       - "traefik.http.routers.$APP_NAME.rule=Host($APP_URL)"
-      - "traefik.http.routers.$APP_NAME.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.$APP_NAME.tls.certresolver=le"
       - "traefik.http.services.$APP_NAME.loadbalancer.server.port=8080"
     networks:
       - traefik
       - intern
 
   frontend:
-    container_name: "${APP_NAME:-innovationseditor-frontend}"
-    image: "ghcr.io/hs-esslingen-it-innovationseditor-v2-0/itinno-frontend:${CONFIG}-latest"
+    container_name: "${APP_NAME:-frontend}"
+    image: "ghcr.io/hs-esslingen-it-innovationseditor-v2-0/itinno-frontend:latest"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${APP_NAME:-innovationseditor-frontend}.entrypoints=websecure"
       - "traefik.http.routers.${APP_NAME:-innovationseditor-frontend}.rule=Host(`${APP_URL}`)"
-      - "traefik.http.routers.${APP_NAME:-innovationseditor-frontend}.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.${APP_NAME:-innovationseditor-frontend}.tls.certresolver=le"
       - "traefik.http.services.${APP_NAME:-innovationseditor-frontend}.loadbalancer.server.port=80"
     networks:
     - traefik
 
   adminer:
     image: adminer
-    restart: always
+    restart: unless-stopped
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.$APP_NAME_ADMINER.entrypoints=websecure"
       - "traefik.http.routers.$APP_NAME_ADMINER.rule=Host($APP_URL_ADMINER)"
-      - "traefik.http.routers.$APP_NAME_ADMINER.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.$APP_NAME_ADMINER.tls.certresolver=le"
       - "traefik.http.services.$APP_NAME_ADMINER.loadbalancer.server.port=8080"
     networks:
       - traefik
@@ -53,15 +54,33 @@ services:
 
   traefik:
     image: traefik:v3.6
+    container_name: "traefik"
+    restart: unless-stopped
+    networks:
+      - traefik
     command:
-      - "--api.insecure=true"
+      - "--api.insecure=false"
       - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=traefik"
       - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.address=:443"
+      - "--entrypoints.websecure.http.tls=true"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      #Let's Encrypt configuration
+      - "--certificateresolvers.le.acme.email.lescit07@hs-esslingen.de"
+      - "--certificateresolvers.le.acme.storage=/letsencrypt/acme.json"
+      - "--certificateresolvers.le.acme.httpchallenge.entrypoint=web"
     ports:
       - "80:80"
+      - "443:443"
       - "8080:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - "./letsencrypt:/letsencrypt"
+    labels:
+      - "traefik.enable=true"
 
 networks:
   traefik:
