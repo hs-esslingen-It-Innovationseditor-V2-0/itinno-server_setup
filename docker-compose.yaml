@@ -26,6 +26,18 @@ services:
       - traefik
       - intern
 
+  frontend:
+    container_name: "${APP_NAME:-innovationseditor-frontend}"
+    image: "ghcr.io/hs-esslingen-it-innovationseditor-v2-0/itinno-frontend:${CONFIG}-latest"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${APP_NAME:-innovationseditor-frontend}.entrypoints=websecure"
+      - "traefik.http.routers.${APP_NAME:-innovationseditor-frontend}.rule=Host(`${APP_URL}`)"
+      - "traefik.http.routers.${APP_NAME:-innovationseditor-frontend}.tls.certresolver=letsencrypt"
+      - "traefik.http.services.${APP_NAME:-innovationseditor-frontend}.loadbalancer.server.port=80"
+    networks:
+    - traefik
+
   adminer:
     image: adminer
     restart: always
