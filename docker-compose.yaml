@@ -12,7 +12,7 @@ services:
 
   backend:
     container_name: "innoeditor-backend"
-    image: ghcr.io/hs-esslingen-it-innovationseditor-v2-0/itinno-backend:develop
+    image: ghcr.io/hs-esslingen-it-innovationseditor-v2-0/itinno-backend:latest
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/itinnodb
       - SPRING_DATASOURCE_USERNAME=itinno
