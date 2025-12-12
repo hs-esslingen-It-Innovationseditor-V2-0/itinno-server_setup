@@ -28,7 +28,7 @@ services:
       - intern
 
   frontend:
-    container_name: "innoeditor:-frontend"
+    container_name: "innoeditor-frontend"
     image: "ghcr.io/hs-esslingen-it-innovationseditor-v2-0/itinno-frontend:latest"
     labels:
       - "traefik.enable=true"
