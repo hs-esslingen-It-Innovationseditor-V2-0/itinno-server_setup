@@ -19,21 +19,24 @@ services:
       - SPRING_DATASOURCE_PASSWORD=secret
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.${APP_NAME}.entrypoints=websecure"
-      - "traefik.http.routers.${APP_NAME}.rule=Host(`${APP_URL}`)"
-      - "traefik.http.routers.${APP_NAME}.tls.certresolver=le"
-      - "traefik.http.services.${APP_NAME}.loadbalancer.server.port=8080"
+      - "traefik.http.routers.${APP_NAME}-backend.entrypoints=websecure"
+      - "traefik.http.routers.${APP_NAME}-backend.rule=Host(`${APP_URL}`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.${APP_NAME}-backend.middlewares=${APP_NAME}-strip-api"
+      - "traefik.http.routers.${APP_NAME}-backend.tls.certresolver=le"
+      - "traefik.http.middlewares.${APP_NAME}-strip-api.stripprefix.prefixes=/api"
+      - "traefik.http.services.${APP_NAME}-backend.loadbalancer.server.port=8080"
     networks:
       - traefik
       - intern
 
   frontend:
-    container_name: "innoeditor-frontend"
+    container_name: "${APP_NAME:-frontend}"
     image: "ghcr.io/hs-esslingen-it-innovationseditor-v2-0/itinno-frontend:latest"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${APP_NAME:-innovationseditor-frontend}.entrypoints=websecure"
       - "traefik.http.routers.${APP_NAME:-innovationseditor-frontend}.rule=Host(`${APP_URL}`)"
+      - "traefik.http.routers.${APP_NAME:-innovationseditor-frontend}.priority=1"
       - "traefik.http.routers.${APP_NAME:-innovationseditor-frontend}.tls.certresolver=le"
       - "traefik.http.services.${APP_NAME:-innovationseditor-frontend}.loadbalancer.server.port=80"
     networks:
@@ -71,7 +74,7 @@ services:
       #Let's Encrypt configuration
       - "--certificatesresolvers.le.acme.email=lescit07@hs-esslingen.de"
       - "--certificatesresolvers.le.acme.storage=/letsencrypt/acme.json"
-      - "--certificatesresolvers.le.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.le.acme.tlschallenge=true"
     ports:
       - "80:80"
       - "443:443"
