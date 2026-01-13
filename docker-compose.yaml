@@ -10,6 +10,16 @@ services:
     networks:
       - intern
 
+rabbitmq:
+  image: 'rabbitmq:4.2'
+  ports:
+    - "5672:5672"
+  environment:
+    RABBITMQ_DEFAULT_USER: itinno
+    RABBITMQ_DEFAULT_PASS: itinnom3ssanger
+  networks:
+    - intern
+
   backend:
     container_name: "innoeditor-backend"
     image: ghcr.io/hs-esslingen-it-innovationseditor-v2-0/itinno-backend:latest
