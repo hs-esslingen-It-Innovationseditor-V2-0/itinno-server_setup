@@ -52,19 +52,6 @@ rabbitmq:
     networks:
     - traefik
 
-  adminer:
-    image: adminer
-    restart: unless-stopped
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.${APP_NAME_ADMINER}.entrypoints=websecure"
-      - "traefik.http.routers.${APP_NAME_ADMINER}.rule=Host(`${APP_URL_ADMINER}`)"
-      - "traefik.http.routers.${APP_NAME_ADMINER}.tls.certresolver=le"
-      - "traefik.http.services.${APP_NAME_ADMINER}.loadbalancer.server.port=8080"
-    networks:
-      - traefik
-      - intern
-
   traefik:
     image: traefik:v3.6
     container_name: "traefik"
