@@ -10,23 +10,33 @@ services:
     networks:
       - intern
 
-rabbitmq:
-  image: 'rabbitmq:4.2'
-  ports:
-    - "5672:5672"
-  environment:
-    RABBITMQ_DEFAULT_USER: itinno
-    RABBITMQ_DEFAULT_PASS: itinnom3ssanger
-  networks:
-    - intern
+  rabbitmq:
+    image: 'rabbitmq:4.2'
+    ports:
+      - "5672:5672"
+    environment:
+      RABBITMQ_DEFAULT_USER: itinno
+      RABBITMQ_DEFAULT_PASS: itinnom3ssanger
+    networks:
+      - intern
 
   backend:
     container_name: "innoeditor-backend"
     image: ghcr.io/hs-esslingen-it-innovationseditor-v2-0/itinno-backend:latest
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/itinnodb
-      - SPRING_DATASOURCE_USERNAME=itinno
-      - SPRING_DATASOURCE_PASSWORD=secret
+      SPRING_PROFILES_ACTIVE: production
+      DB_URL: jdbc:postgresql://db:5432/itinnodb
+      DB_USERNAME: itinno
+      DB_PASSWORD: secret
+      ISSUER_URI: ${KEYCLOAK_ISSUER_URI}
+      KEYCLOAK_FRONTEND_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-itinno-frontend}
+      REQUIRED_KEYCLOAK_ROLE: ${REQUIRED_ROLE:-ROLE_EDITOR}
+      ALLOWED_ORIGIN: https://${APP_URL}
+      SERVER_FORWARD_HEADERS_STRATEGY: FRAMEWORK
+      SERVER_TOMCAT_REMOTEIP_REMOTE_IP_HEADER: x-forwarded-for
+      SERVER_TOMCAT_REMOTEIP_PROTOCOL_HEADER: x-forwarded-proto
+      ITINNO_USER: system
+      ITINNO_PASSWORD: systempw
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${APP_NAME}-backend.entrypoints=websecure"
