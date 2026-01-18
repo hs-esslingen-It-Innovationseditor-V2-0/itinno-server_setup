@@ -22,7 +22,7 @@ services:
 
   backend:
     container_name: "innoeditor-backend"
-    image: ghcr.io/hs-esslingen-it-innovationseditor-v2-0/itinno-backend:latest
+    image: ghcr.io/hs-esslingen-it-innovationseditor-v2-0/itinno-backend:main
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/itinnodb
       - SPRING_DATASOURCE_USERNAME=itinno
@@ -41,7 +41,7 @@ services:
 
   frontend:
     container_name: "${APP_NAME:-frontend}"
-    image: "ghcr.io/hs-esslingen-it-innovationseditor-v2-0/itinno-frontend:latest"
+    image: "ghcr.io/hs-esslingen-it-innovationseditor-v2-0/itinno-frontend:main"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${APP_NAME:-innovationseditor-frontend}.entrypoints=websecure"
