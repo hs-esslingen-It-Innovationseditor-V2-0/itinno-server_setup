@@ -24,7 +24,9 @@ services:
     container_name: "innoeditor-backend"
     image: ghcr.io/hs-esslingen-it-innovationseditor-v2-0/itinno-backend:latest
     environment:
+      - SPRING_PROFILES_ACTIVE=dev
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/itinnodb
+      - SPRING_DATASOURCE_DRIVER=org.postgresql.Driver
       - SPRING_DATASOURCE_USERNAME=itinno
       - SPRING_DATASOURCE_PASSWORD=secret
     labels:
@@ -50,7 +52,7 @@ services:
       - "traefik.http.routers.${APP_NAME:-innovationseditor-frontend}.tls.certresolver=le"
       - "traefik.http.services.${APP_NAME:-innovationseditor-frontend}.loadbalancer.server.port=80"
     networks:
-    - traefik
+      - traefik
 
   adminer:
     image: adminer
