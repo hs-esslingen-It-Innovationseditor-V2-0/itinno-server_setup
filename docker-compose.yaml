@@ -24,14 +24,11 @@ services:
     container_name: "innoeditor-backend"
     image: ghcr.io/hs-esslingen-it-innovationseditor-v2-0/itinno-backend:main
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_PROFILES_ACTIVE=dev
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/itinnodb
+      - SPRING_DATASOURCE_DRIVER=org.postgresql.Driver
       - SPRING_DATASOURCE_USERNAME=itinno
       - SPRING_DATASOURCE_PASSWORD=secret
-      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=https://auth.insy.hs-esslingen.com/realms/insy
-      - ALLOWED_ORIGIN=https://dev.itinno.hs-esslingen.com
-      - KEYCLOAK_FRONTEND_CLIENT_ID=inno-editor-prod
-      - REQUIRED_ROLE=ROLE_USER
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${APP_NAME}-backend.entrypoints=websecure"
